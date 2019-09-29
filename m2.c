@@ -24,21 +24,29 @@ void creacion_cartas()
 {
 	int i,j;
 	char colores[4][10]={"azul","rojo","verde","amarillo"};
+	char coloresR[4][12]={"azul(1)","rojo(1)","verde(1)","amarillo(1)"};
+
 	//*****Pueden haber archivos con igual nombre?
-	char color[4][15]={"mazo/color(1)","mazo/color(2)","mazo/color(3)","mazo/olor(4)"};
+	char color[4][15]={"mazo/color(1)","mazo/color(2)","mazo/color(3)","mazo/color(4)"};
 	char mas_4[4][15]={"mazo/+4(1)","mazo/+4(2)","mazo/+4(3)","mazo/+4(4)"};
 	char numeros[12][10]={"1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","+2 ","reversa ","salto "}; //Ya tienen el espacio del append
-    char cartas[108][10]; 
-    for(j=0;j<4;j++)
-    {
+    	char cartas[108][10]; 
+    	for(j=0;j<4;j++)
+    	{
    		for(i=0;i<12;i++)
    		{
    			FILE *fp;
+   			FILE *fpR;
    			char direccion_cartas[30]="mazo/";
+   			char direccion_cartasR[30]="mazo/";
    			strcat(direccion_cartas,numeros[i]);
+   			strcat(direccion_cartasR,numeros[i]);
    			strcat(direccion_cartas,colores[j]);
+   			strcat(direccion_cartasR,coloresR[j]);
 			fp=fopen(direccion_cartas,"w");
 			fclose(fp);
+			fpR=fopen(direccion_cartasR,"w");
+			fclose(fpR);
    		}
    		FILE *fp;
    		char direccion_cartas[30]="mazo/";
