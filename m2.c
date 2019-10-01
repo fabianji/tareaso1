@@ -6,6 +6,13 @@
 #include <dirent.h> 
 #include <string.h>
 
+
+//IMPORTANTE AL NAVEGAR ARREGLAR EL IF SI UNO PONE LETRA
+//
+
+//GRAN SUPUESTO, TODAS LAS CARPETAS DENTRO DE LA CARPETA QUE CONTIENE EL M2.C
+
+
 void creacion_carpetas_vacias()
 {
 	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","rebelada"};
@@ -22,16 +29,14 @@ void creacion_carpetas_vacias()
 
 void creacion_cartas()
 {
-	int i,j,k;
+	int i,j;
 	char colores[4][50]={"azul.txt","rojo.txt","verde.txt","amarillo.txt"};
 	char colores2[4][50]={"azul(2).txt","rojo(2).txt","verde(2).txt","amarillo(2).txt"};
 	//*****Pueden haber archivos con igual nombre?
 	char color[4][50]={"mazo/color(1).txt","mazo/color(2).txt","mazo/color(3).txt","mazo/color(4).txt"};
 	char mas_4[4][50]={"mazo/+4(1).txt","mazo/+4(2).txt","mazo/+4(3).txt","mazo/+4(4).txt"};
 	char numeros[12][10]={"1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","+2 ","reversa ","salto "}; //Ya tienen el espacio del append
-    char cartas[108][10]; 
-
-    char direccion_cartas[50];
+    
     for(j=0;j<4;j++)
     {
    		for(i=0;i<12;i++)
@@ -68,7 +73,12 @@ void creacion_cartas()
    	} 
 }
 
-void opciones(char archivos_o_carpetas[200][50], DIR *d, int es_carpeta[200], int *volver) //es carpeta=1
+
+
+
+
+
+void opciones(char archivos_o_carpetas[200][100], DIR *d, int es_carpeta[200], int *volver) //es carpeta=1
 {
 	struct dirent *dir;	
 	int ra=1; //Recorre archivos
@@ -96,7 +106,7 @@ void opciones(char archivos_o_carpetas[200][50], DIR *d, int es_carpeta[200], in
 	    		es_txt=1;
 	    		es_carpeta[ra]=0;
 	    	}
-	    	if(es_txt || es_carpeta_posible)
+	    	if(es_txt || es_carpeta_posible)//ignora los .c etc
 	    	{
 	    		strcpy(archivos_o_carpetas[ra],dir->d_name);
 	    		if(!strcmp(dir->d_name,"..")){
@@ -107,6 +117,7 @@ void opciones(char archivos_o_carpetas[200][50], DIR *d, int es_carpeta[200], in
 	        	printf("%d %s\n",ra,archivos_o_carpetas[ra]);
 	        	ra++;
 	    	}
+	    	
 
 	    	es_carpeta_posible=0; 
 			es_txt=0;
@@ -116,33 +127,15 @@ void opciones(char archivos_o_carpetas[200][50], DIR *d, int es_carpeta[200], in
 	}
 
 	closedir(d);
-
-
-	//La estoy haciendo en otro c , casi...
 }
 
-void barajar()
-{
-	//Tmb la tengo casi...
-}
 
-//Cantidad de cartas i que se da al jugador j
-void robar_carta(int i, int j){
-
-}
-
-//***IMPORTANTE ver el tema de los fork y comunicación pipes
-//Dejar carta en carpeta rebelada y elimina anterior.
-//debe cumplir con la restriccion del color y tipo
-void colocar_carta_rebelada(){
-
-}
 
 void navegar(){
-	char archivos[200][50]; //el nombre de los archivos no superaran 50 caracteres
+	char archivos[200][100]; //el nombre de los archivos no superaran 50 caracteres
 	int es_carpeta[200]; //Guarda si es carpeta o archivo 1 o 0
 	
-	char directorio_actual[50]=".";
+	char directorio_actual[100]=".";
 	int eleccion=1;
 	
 	int volver;
@@ -176,15 +169,18 @@ void navegar(){
 	}
 }
 
-void navegar2(char carta_seleccionada[50]){
-	char archivos[200][50]; //el nombre de los archivos no superaran 50 caracteres
+//Para elegir que carta poner
+void seleccionar_carta(char carta_seleccionada[100], char dir_carta_seleccionada[100])
+{
+	char archivos[200][100]; //el nombre de los archivos no superaran 50 caracteres
 	int es_carpeta[200]; //Guarda si es carpeta o archivo 1 o 0
 	
-	char directorio_actual[50]=".";
+	char directorio_actual[100]=".";
 	int eleccion=1;
 	
 	int volver;
-	while(eleccion != 0)
+	int se_ha_seleccionado_carta=0;
+	while(se_ha_seleccionado_carta != 1 && (eleccion != 0)) //AGREGAR OPCION DE SALIRSE
 	{
 		printf("Ingrese el numero del archivo al que desea acceder:\n");
 		DIR *d = opendir(directorio_actual);
@@ -194,7 +190,7 @@ void navegar2(char carta_seleccionada[50]){
 		//*FALTA DECIR SI NO ES NUMERO...
 		if(eleccion ==0)
 		{
-			printf("Adios.\n");
+			printf("No se eligio carta.\n");
 		}
 		else
 		{
@@ -202,7 +198,13 @@ void navegar2(char carta_seleccionada[50]){
 			{  
 				printf("Eligio la carta:%s\n",archivos[eleccion]);
 				strcpy(carta_seleccionada,archivos[eleccion]);
+				
+				strcpy(dir_carta_seleccionada,directorio_actual);
+				strcat(dir_carta_seleccionada,"/");
+				strcat(dir_carta_seleccionada,carta_seleccionada);
 				eleccion=0;
+				se_ha_seleccionado_carta=1;
+				
 			}
 			else
 			{
@@ -211,9 +213,145 @@ void navegar2(char carta_seleccionada[50]){
 				strcat(directorio_actual,archivos[eleccion]);
 			}
 		}
-		
-		
 	}
+}
+
+
+//OJO: QUE RESTRINJA SOLO A CARPETAS EXISTENTES.
+void vaciar_carpeta()
+{
+	
+	
+	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","rebelada"};
+
+	printf("Seleccione la carpeta que desea vaciar:\n");
+	int i;
+	for(i=0;i<6;i++)
+	{
+		printf("%d. %s\n",i,nombre_carpetas[i]);
+	}
+
+	int eleccion=-1;
+	while(eleccion < 0 || eleccion >= 6)
+	{
+		scanf("%d",&eleccion);
+	}
+
+	char directorio_elegido[20];
+
+	strcpy(directorio_elegido,nombre_carpetas[eleccion]); 
+	//printf("directorio_elegido: %s\n",directorio_elegido);
+	char directorio_actual[50] = "./";
+	strcat(directorio_actual,directorio_elegido);
+	//printf("directorio_actual: %s\n",directorio_actual);
+
+	DIR *d = opendir(directorio_actual);
+	struct dirent *dir;	
+	char direccion_carta_eliminada1[50];
+	strcpy(direccion_carta_eliminada1,directorio_actual);
+	
+	printf("dir_car_elim1:%s\n",direccion_carta_eliminada1);
+	char direccion_carta_eliminada2[50];
+	strcpy(direccion_carta_eliminada2,direccion_carta_eliminada1);
+	printf("dir_car_elim2:%s\n",direccion_carta_eliminada2);
+	//Vaciara carpeta con nombre que deberia estar reservado para la tarea
+	//Pero por si acaso se asegurara eliminar solo .txt
+	int j = 0; //solo para ver cuantas se eliminan con el print comentado
+	while((dir = readdir(d)) != NULL)
+	{
+		if(strstr(dir->d_name,".txt")!=NULL)
+    	{
+    		printf("carta:%s\n",dir->d_name);
+    		strcat(direccion_carta_eliminada2,"/");
+    		strcat(direccion_carta_eliminada2,dir->d_name);
+    		printf("%d. Se eliminara carta  de direccion: %s\n",j,direccion_carta_eliminada2);
+    		remove(direccion_carta_eliminada2);
+    		//para ver que se regreso bien a la carpeta
+    		strcpy(direccion_carta_eliminada2,direccion_carta_eliminada1);
+    		printf("%d. De la carpeta de direccion %s\n",j,direccion_carta_eliminada2);
+    		j++;
+
+    	}
+	}
+
+	closedir(d);
+
+}
+
+
+void seleccionar_carpeta(char carpeta_seleccionada[100], char dir_carpeta_seleccionada[100])
+{
+	char archivos[200][100]; //el nombre de los archivos no superaran 50 caracteres
+	int es_carpeta[200]; //Guarda si es carpeta o archivo 1 o 0
+	
+	char directorio_actual[100]=".";
+	int eleccion=1;
+	
+	int volver;
+	int se_ha_seleccionado_carta=0;
+	while(se_ha_seleccionado_carta != 1 && (eleccion != 0)) //AGREGAR OPCION DE SALIRSE
+	{
+		printf("Ingrese el numero del archivo al que desea acceder:\n");
+		DIR *d = opendir(directorio_actual);
+		opciones(archivos, d, es_carpeta,&volver);
+		printf("\nSalir = 0, Volver = %d\n",volver);
+		scanf("%d",&eleccion);
+		//*FALTA DECIR SI NO ES NUMERO...
+		if(eleccion ==0)
+		{
+			printf("No se eligio carpeta.\n");
+		}
+		else
+		{
+			if (es_carpeta[eleccion]==0)
+			{  
+				printf("Eligio la carta:%s\n",archivos[eleccion]);
+				//strcpy(carta_seleccionada,archivos[eleccion]);
+				//strcpy(dir_carta_seleccionada,directorio_actual);
+				eleccion=0;
+				se_ha_seleccionado_carta=1;
+				
+			}
+			else
+			{
+				//printf("Eligio la carpeta:%s\n",archivos[eleccion]);
+				strcat(directorio_actual,"/");
+				strcat(directorio_actual,archivos[eleccion]);
+				strcpy(carpeta_seleccionada,archivos[eleccion]);
+				strcpy(dir_carpeta_seleccionada,directorio_actual);
+				//printf("en la direccion: %s\n",dir_carpeta_seleccionada);
+				break;
+			}	
+		}
+	}
+}
+
+void cartas_carpeta(char dir_carpeta[100], char cartas[200][100], char dir_cartas[200][100])
+{
+	struct dirent *dir;
+	DIR *d=opendir(dir_carpeta);
+	int ra=0;
+	char dir_actual[200];
+	strcpy(dir_actual,dir_carpeta);
+	
+
+
+	while ((dir = readdir(d)) != NULL) 
+    {
+
+    	if(strstr(dir->d_name,".txt")!=NULL)
+    	{
+    		strcat(dir_actual,"/");
+    		strcpy(cartas[ra],dir->d_name);
+    		strcat(dir_actual,dir->d_name);
+    		strcpy(dir_cartas[ra],dir_actual);
+
+    		strcpy(dir_actual,dir_carpeta);
+    		ra++;
+    	}
+    }
+
+
 }
 
 
@@ -221,15 +359,26 @@ int main(int argc, char **argv)
 {
 
 	
-	char *carta_seleccionada;
+
+	int i=0;
+	char carta_seleccionada[100];
+	char dir_carta_seleccionada[100];
+	char carpeta_seleccionada[100];
+	char dir_carpeta_seleccionada[100];
+	
 	int opcion=-1;
 	
+	char cartas[200][100];
+	char dir_cartas[200][100];
 	while(opcion != 0){
 		printf("Ingrese el numero de lo que desea hacer:\n");
 		printf("0. Salir.\n");
 		printf("1. Crear carpetas y cartas.\n");
 		printf("2. Navegar (se detendra hasta que quiera salir).\n");
 		printf("3. Seleccionar alguna carta.\n");
+		printf("4. Vaciar carpeta.\n");
+		printf("5. Elegir carpeta valida\n");
+		printf("6. Crear arreglos de cartas dada la direccion de la carpeta. \n");
 		scanf("%d",&opcion);
 		
 
@@ -237,6 +386,8 @@ int main(int argc, char **argv)
 		if(opcion==0)
 		{
 			printf("ADIOS!\n");
+			break;
+
 		}
 		else if(opcion==1)
 		{
@@ -249,9 +400,49 @@ int main(int argc, char **argv)
 		}
 		else if(opcion==3)
 		{
-			navegar2(carta_seleccionada);
-			//*************ACA PODRIAS PONER LO DE ELEGIR CARTA
+			seleccionar_carta(carta_seleccionada,dir_carta_seleccionada);
+			//prueba(carta_seleccionada);
+			printf("Tiene la carta: %s\n",carta_seleccionada);
+			printf("En direccion: %s\n",dir_carta_seleccionada);
+
+
 			
+		}
+		else if(opcion==4)
+		{
+
+			vaciar_carpeta();
+			
+		}
+		else if(opcion==5)
+		{
+
+			
+			printf("Selecciono carpeta\n");
+			seleccionar_carpeta(carpeta_seleccionada,dir_carpeta_seleccionada);
+			//prueba(carta_seleccionada);
+			
+			
+		}
+
+		else if(opcion==6)
+		{
+
+			printf("Seleccione carpeta\n");
+			seleccionar_carpeta(carpeta_seleccionada,dir_carpeta_seleccionada);
+			//prueba(carta_seleccionada);
+			printf("Tiene la carpeta: %s\n",carpeta_seleccionada);
+			printf("En direccion: %s\n",dir_carpeta_seleccionada);
+
+			cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas);
+			while(strstr(cartas[i],".txt")!=NULL)
+			{
+			
+				
+				printf("%d. carta: %s    dir_carta: %s\n",i,cartas[i],dir_cartas[i]);
+				i++;
+			}
+			i=0;
 		}
 		else {
 			printf("OPCION NO VALIDA.\n");
@@ -262,10 +453,13 @@ int main(int argc, char **argv)
 
 	}
 
-	
-	
 
-	navegar(); 
+
+
+
+
+
+ 
 	return 0;
 
 }
