@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <dirent.h> 
 #include <string.h>
-
+#include <time.h>
 
 //IMPORTANTE AL NAVEGAR ARREGLAR EL IF SI UNO PONE LETRA
 //
@@ -15,7 +15,7 @@
 
 void creacion_carpetas_vacias()
 {
-	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","rebelada"};
+	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","revelada"};
 	int i;
 	for(i=0;i<6;i++)
 	{
@@ -85,7 +85,7 @@ void opciones(char archivos_o_carpetas[200][100], DIR *d, int es_carpeta[200], i
 	strcpy(archivos_o_carpetas[0],"Salir.");
 	printf("%d %s\n",0,archivos_o_carpetas[0]);
 	
-	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","rebelada",".."};
+	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","revelada",".."};
 	int i;
 	int es_carpeta_posible=0; 
 	int es_txt=0;
@@ -222,7 +222,7 @@ void vaciar_carpeta()
 {
 	
 	
-	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","rebelada"};
+	char nombre_carpetas[20][20]={"mazo","mano1","mano2","mano3","mano4","revelada"};
 
 	printf("Seleccione la carpeta que desea vaciar:\n");
 	int i;
@@ -326,7 +326,7 @@ void seleccionar_carpeta(char carpeta_seleccionada[100], char dir_carpeta_selecc
 	}
 }
 
-void cartas_carpeta(char dir_carpeta[100], char cartas[200][100], char dir_cartas[200][100])
+void cartas_carpeta2(char dir_carpeta[100], char cartas[200][100], char dir_cartas[200][100])
 {
 	struct dirent *dir;
 	DIR *d=opendir(dir_carpeta);
@@ -354,10 +354,50 @@ void cartas_carpeta(char dir_carpeta[100], char cartas[200][100], char dir_carta
 
 }
 
+void agregar(char *nombreCarta, char *carpetaDestino, char *carpetaOrigen){
+	char comando[40]="mv '";
+	strcat(comando, carpetaOrigen);
+	strcat(comando, "/");
+	strcat(comando, nombreCarta);
+	strcat(comando, "' ");
+	strcat(comando, carpetaDestino);
+	system(comando);
+}
+
+int cartas_carpeta(char dir_carpeta[100], char cartas[200][100], char dir_cartas[200][100])
+{
+	struct dirent *dir;
+	DIR *d=opendir(dir_carpeta);
+	int ra=0;
+	char dir_actual[200];
+	strcpy(dir_actual,dir_carpeta);
+	
+
+
+	while ((dir = readdir(d)) != NULL) 
+    {
+
+    	if(strstr(dir->d_name,".txt")!=NULL)
+    	{
+    		strcat(dir_actual,"/");
+    		strcpy(cartas[ra],dir->d_name);
+    		strcat(dir_actual,dir->d_name);
+    		strcpy(dir_cartas[ra],dir_actual);
+
+    		strcpy(dir_actual,dir_carpeta);
+    		ra++;
+    	}
+    }
+    return ra;
+
+
+}
+
 
 int main(int argc, char **argv)
 {
 
+	
 	
 
 	int i=0;
@@ -369,7 +409,22 @@ int main(int argc, char **argv)
 	int opcion=-1;
 	
 	char cartas[200][100];
+	
 	char dir_cartas[200][100];
+	int j;
+
+//PARA LA 7
+/*
+	int jug=-1;
+	int l;
+	char dir_carpetas_jugadores[4][100]={"./mano1","./mano2","/mano3","./mano4"}
+	int n;
+	char dir_carpeta_mazo[100]="./mazo";
+	char dir_carpeta_jugador_actual[100]="./";
+	int r; //random
+	char todas_cartas[4][200][100];//MIENTRAS TANTO
+*/
+
 	while(opcion != 0){
 		printf("Ingrese el numero de lo que desea hacer:\n");
 		printf("0. Salir.\n");
@@ -378,7 +433,10 @@ int main(int argc, char **argv)
 		printf("3. Seleccionar alguna carta.\n");
 		printf("4. Vaciar carpeta.\n");
 		printf("5. Elegir carpeta valida\n");
-		printf("6. Crear arreglos de cartas dada la direccion de la carpeta. \n");
+		printf("6. Crear arreglos de cartas eligiendo carpeta valida \n");
+		printf("7. Repartir\n");
+		//Podria servir a futuro
+		printf("8. Agrega carta fija(2 amarillo.txt) de mazo a mano1.\n ");
 		scanf("%d",&opcion);
 		
 
@@ -434,7 +492,7 @@ int main(int argc, char **argv)
 			printf("Tiene la carpeta: %s\n",carpeta_seleccionada);
 			printf("En direccion: %s\n",dir_carpeta_seleccionada);
 
-			cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas);
+			cartas_carpeta2(dir_carpeta_seleccionada,cartas,dir_cartas);
 			while(strstr(cartas[i],".txt")!=NULL)
 			{
 			
@@ -442,8 +500,69 @@ int main(int argc, char **argv)
 				printf("%d. carta: %s    dir_carta: %s\n",i,cartas[i],dir_cartas[i]);
 				i++;
 			}
+			//n=i; //SE GUARDA EL TAMAÑO DEL ARREGLO
 			i=0;
 		}
+		else if(opcion ==7)
+		{
+
+			//agregar("2 amarillo.txt","mazo","mano1");
+
+			
+			srand(time(NULL));
+			char jugadores[4][10]={"mano1", "mano2", "mano3", "mano4"};
+			printf("Seleccione carpeta\n");
+			seleccionar_carpeta(carpeta_seleccionada,dir_carpeta_seleccionada);
+			printf("Tiene la carpeta: %s\n",carpeta_seleccionada);
+			printf("En direccion: %s\n",dir_carpeta_seleccionada);
+
+			int random;
+			for (j = 0; j < 4; j++)
+			{
+				i=0;
+				random=rand()%(cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas)+1);
+				while(strstr(cartas[random],".txt")!=NULL && i<7)
+				{
+					agregar(cartas[random], jugadores[j], "mazo");
+					printf("%d La carta obtenida es %s -> %s\n",random, cartas[random], jugadores[j]);
+					random=rand()%cartas_carpeta (dir_carpeta_seleccionada,cartas,dir_cartas)+1;
+					i++;
+				}
+			}
+			printf("%d\n",cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas));
+
+
+
+
+/*
+
+			printf("Decida jugador:\n");
+			for(l=0;l<4;l++)
+			{
+				printf("%d. Jugador %d\n",l,l);
+			}
+			scanf("%d",&jug);
+			while(jug<0 && jug>4)
+			{
+				printf("Opcion invalida ingrese nuevamente.\n");
+				printf("Decida jugador:\n");
+				for(l=0;l<4;l++)
+				{
+					printf("%d. Jugador %d\n",l,l);
+				}
+				scanf("%d",&jug);
+			}
+
+			//printf("Diga el numero de cartas que tiene que robar (1/2/4/7)");
+*/
+
+		}
+
+		else if(opcion==8)
+		{
+			agregar("2 amarillo.txt","mano1","mazo");
+		}
+		
 		else {
 			printf("OPCION NO VALIDA.\n");
 
