@@ -326,6 +326,12 @@ void seleccionar_carpeta(char carpeta_seleccionada[100], char dir_carpeta_selecc
 	}
 }
 
+/*
+---Descripcion: Se usa dir_carpeta para abrir una carpeta que halla sido
+validada antes, por ejemplo ./mano1 , en cartas se guardan todos los .txt
+
+
+*/
 void cartas_carpeta2(char dir_carpeta[100], char cartas[200][100], char dir_cartas[200][100])
 {
 	struct dirent *dir;
@@ -333,12 +339,8 @@ void cartas_carpeta2(char dir_carpeta[100], char cartas[200][100], char dir_cart
 	int ra=0;
 	char dir_actual[200];
 	strcpy(dir_actual,dir_carpeta);
-	
-
-
 	while ((dir = readdir(d)) != NULL) 
     {
-
     	if(strstr(dir->d_name,".txt")!=NULL)
     	{
     		strcat(dir_actual,"/");
@@ -350,7 +352,6 @@ void cartas_carpeta2(char dir_carpeta[100], char cartas[200][100], char dir_cart
     		ra++;
     	}
     }
-
 
 }
 
@@ -371,9 +372,6 @@ int cartas_carpeta(char dir_carpeta[100], char cartas[200][100], char dir_cartas
 	int ra=0;
 	char dir_actual[200];
 	strcpy(dir_actual,dir_carpeta);
-	
-
-
 	while ((dir = readdir(d)) != NULL) 
     {
 
@@ -383,47 +381,66 @@ int cartas_carpeta(char dir_carpeta[100], char cartas[200][100], char dir_cartas
     		strcpy(cartas[ra],dir->d_name);
     		strcat(dir_actual,dir->d_name);
     		strcpy(dir_cartas[ra],dir_actual);
-
     		strcpy(dir_actual,dir_carpeta);
     		ra++;
     	}
     }
     return ra;
+}
 
+/***********************************************************************
+Descripcion: Esta funcion reparte las 7 cartas iniciales en las carpetas
+			 mano1, mano2, mano3 y mano4
+***********************************************************************/
+void repartir7cartas()
+{
 
+	int i=0;
+	int j;	
+	//char carpeta_seleccionada[100];
+	char dir_carpeta_seleccionada[100];
+	char cartas[200][100];
+	char dir_cartas[200][100];
+	srand(time(NULL));
+	char jugadores[4][10]={"mano1", "mano2", "mano3", "mano4"};
+	printf("Seleccione carpeta\n");
+	//seleccionar_carpeta(carpeta_seleccionada,dir_carpeta_seleccionada);
+	strcpy(dir_carpeta_seleccionada, "./mazo");
+	//printf("Tiene la carpeta: %s\n",carpeta_seleccionada);
+	//printf("En direccion: %s\n",dir_carpeta_seleccionada);
+
+	int random;
+	for (j = 0; j < 4; j++)
+	{
+		i=0;
+		random=rand()%(cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas)+1);
+		while(strstr(cartas[random],".txt")!=NULL && i<7)
+		{
+			agregar(cartas[random], jugadores[j], "mazo");
+			//printf("%d La carta obtenida es %s -> %s\n",random, cartas[random], jugadores[j]);
+			random=rand()%cartas_carpeta (dir_carpeta_seleccionada,cartas,dir_cartas)+1;
+			i++;
+		}
+	}
+	//printf("%d\n",cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas));
 }
 
 
-int main(int argc, char **argv)
+/*
+Descripcion: Muestra un menu, que permite ver las funciones y como funcionan
+
+
+*/
+void menu_funciones()
 {
-
-	
-	
-
 	int i=0;
 	char carta_seleccionada[100];
 	char dir_carta_seleccionada[100];
 	char carpeta_seleccionada[100];
 	char dir_carpeta_seleccionada[100];
-	
 	int opcion=-1;
-	
 	char cartas[200][100];
-	
 	char dir_cartas[200][100];
-	int j;
-
-//PARA LA 7
-/*
-	int jug=-1;
-	int l;
-	char dir_carpetas_jugadores[4][100]={"./mano1","./mano2","/mano3","./mano4"}
-	int n;
-	char dir_carpeta_mazo[100]="./mazo";
-	char dir_carpeta_jugador_actual[100]="./";
-	int r; //random
-	char todas_cartas[4][200][100];//MIENTRAS TANTO
-*/
 
 	while(opcion != 0){
 		printf("Ingrese el numero de lo que desea hacer:\n");
@@ -434,8 +451,7 @@ int main(int argc, char **argv)
 		printf("4. Vaciar carpeta.\n");
 		printf("5. Elegir carpeta valida\n");
 		printf("6. Crear arreglos de cartas eligiendo carpeta valida \n");
-		printf("7. Repartir\n");
-		//Podria servir a futuro
+		printf("7. Repartir 7 cartas iniciales\n");
 		printf("8. Agrega carta fija(2 amarillo.txt) de mazo a mano1.\n ");
 		scanf("%d",&opcion);
 		
@@ -492,69 +508,26 @@ int main(int argc, char **argv)
 			printf("Tiene la carpeta: %s\n",carpeta_seleccionada);
 			printf("En direccion: %s\n",dir_carpeta_seleccionada);
 
+			/**********************************************************
+			-Descripcion: La funcion cartas_carpeta2 guarda en el arreglo
+			cartas y dir_cartas los nombres de las cartas.txt y sus
+			respectivas direcciones.
+			**********************************************************/
 			cartas_carpeta2(dir_carpeta_seleccionada,cartas,dir_cartas);
 			while(strstr(cartas[i],".txt")!=NULL)
 			{
-			
-				
 				printf("%d. carta: %s    dir_carta: %s\n",i,cartas[i],dir_cartas[i]);
 				i++;
 			}
 			//n=i; //SE GUARDA EL TAMAÑO DEL ARREGLO
-			i=0;
+			
 		}
 		else if(opcion ==7)
 		{
 
-			//agregar("2 amarillo.txt","mazo","mano1");
-
-			
-			srand(time(NULL));
-			char jugadores[4][10]={"mano1", "mano2", "mano3", "mano4"};
-			printf("Seleccione carpeta\n");
-			seleccionar_carpeta(carpeta_seleccionada,dir_carpeta_seleccionada);
-			printf("Tiene la carpeta: %s\n",carpeta_seleccionada);
-			printf("En direccion: %s\n",dir_carpeta_seleccionada);
-
-			int random;
-			for (j = 0; j < 4; j++)
-			{
-				i=0;
-				random=rand()%(cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas)+1);
-				while(strstr(cartas[random],".txt")!=NULL && i<7)
-				{
-					agregar(cartas[random], jugadores[j], "mazo");
-					printf("%d La carta obtenida es %s -> %s\n",random, cartas[random], jugadores[j]);
-					random=rand()%cartas_carpeta (dir_carpeta_seleccionada,cartas,dir_cartas)+1;
-					i++;
-				}
-			}
-			printf("%d\n",cartas_carpeta(dir_carpeta_seleccionada,cartas,dir_cartas));
+			repartir7cartas();
 
 
-
-
-/*
-
-			printf("Decida jugador:\n");
-			for(l=0;l<4;l++)
-			{
-				printf("%d. Jugador %d\n",l,l);
-			}
-			scanf("%d",&jug);
-			while(jug<0 && jug>4)
-			{
-				printf("Opcion invalida ingrese nuevamente.\n");
-				printf("Decida jugador:\n");
-				for(l=0;l<4;l++)
-				{
-					printf("%d. Jugador %d\n",l,l);
-				}
-				scanf("%d",&jug);
-			}
-
-			//printf("Diga el numero de cartas que tiene que robar (1/2/4/7)");
-*/
 
 		}
 
@@ -573,6 +546,18 @@ int main(int argc, char **argv)
 	}
 
 
+
+}
+
+
+
+int main(int argc, char **argv)
+{
+
+	menu_funciones();
+	
+
+	
 
 
 
