@@ -6,6 +6,7 @@
 #include <dirent.h> 
 #include <string.h>
 #include <time.h>
+#include <sys/wait.h>
 
 //IMPORTANTE AL NAVEGAR ARREGLAR EL IF SI UNO PONE LETRA
 //
@@ -551,11 +552,110 @@ void menu_funciones()
 
 
 
+int hazalgo()
+{
+	int ret;
+	srand(getpid());
+	ret = rand() % 256;
+	printf("Hijo: PID = %d, valor aleatorio calculado %d \n",getpid(),ret);
+	return ret;
+
+}
+
+
+/*
+Descripcion: Con esto el padre es el ultimo en ejecutarse.
+Falta: Faltaria hacer que se cumpla el orden: padre, hijo1, hijo2, hijo3
+Y agregar pipes
+
+*/
+void simular_turnos()
+{
+	pid_t pid;
+	int status;
+	for(int i=0; i < 3;i++)
+	{
+		pid = fork();
+		if(pid>0)//padre
+		{
+			continue; //se va directo al for
+		}
+		else if(pid==0)
+		{
+			//Como no qro hijos de hijos
+			//hijo ejecuta y termina
+			exit(hazalgo());
+		}
+		else{
+			printf("error\n");
+		}
+
+	}
+	
+	//el padre lo ejecuta 3 veces
+	for(int i=0;i<3;i++)
+	{
+		pid = wait(&status);
+		printf("padre de pid=%d, hijo de PID=%d terminado, st=%d\n", getpid(),pid,WEXITSTATUS(status));
+	}
+
+
+/*
+	while(1){
+		sleep(10);
+	}
+*/
+
+}
+
+void compartir1pipe()
+{
+
+	int fd[2];
+	pid_t pid;
+	int num;
+	char buf[10];
+
+	pipe(fd); //falta error management
+	pid=fork();
+	switch(pid)
+	{
+		case -1: //error
+			break;
+		case 0: //hijo
+			close(fd[0]); //1) hijo cierra lectura
+			write(fd[1],"abcde",5); //3) hijo escribe abcde de 5 bytes 
+			close(fd[1]); //5) se cierra
+			exit(0);
+			break;
+		default: //padre
+			close(fd[1]); //2) padre cierra escritura
+			num=read(fd[0],buf,sizeof(buf)); //4) ESTA FUNCION ESPERA SI O SI AL HIJO
+			printf("padre lee %d bytes %s\n",num,buf);
+			close(fd[0]); //6) se cierra
+			break;
+	}
+
+}
+
+
+
 int main(int argc, char **argv)
 {
 
-	menu_funciones();
+
+
+	menu_funciones(); //apretar 0 para ver lo de pipes...
 	
+
+	printf("Simulando turnos:\n");
+	simular_turnos();
+
+	printf("Compartiendo 1 pipe:\n");
+	compartir1pipe();
+
+
+
 
 	
 
