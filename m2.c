@@ -652,6 +652,7 @@ int main(int argc, char **argv)
 	else if(elecc == 2)
 	{
 
+		printf("Eligio2:\n");
 		//simular_turnos();
 		int canalTurno1[2], canalTurno2[2], canalTurno3[2];
 		//int canalTermino1[2], canalTermino2[2], canalTermino3[2];
@@ -672,33 +673,36 @@ int main(int argc, char **argv)
 		int i=1;
 		if (getppid()+1==getpid())
 		{
-			printf("Soy: %d y espero mensaje padre\n",getpid());
+			printf("Soy: %d y espero mensaje padre %d\n",getpid(),getppid());
 
 			lectura(canalTurno1); //espera mensaje del padre
 			return 0;
 		}
 		else if (getppid()+2==getpid()){
-			printf("Soy: %d y espero mensaje padre \n",getpid() ); 
+			printf("Soy: %d y espero mensaje padre %d\n",getpid(),getppid() ); 
 			lectura(canalTurno2); //espera mensaje del padre
 			return 0;
 		}
 		else if (getppid()+3==getpid()){
 		
-			printf("Soy: %d y espero mensaje padre \n",getpid() );
+			printf("Soy: %d y espero mensaje padre %d\n",getpid(),getppid() );
 			lectura(canalTurno3); //espera mensaje del padre
 			return 0;
 		}
 		while(i<5){
 			if (i==1){
-				envio(canalTurno1, "Le toca a 1"); //envia mensaje
+				//printf("Soy: %d y aviso que es turno de:\n",getppid());
+				envio(canalTurno1, "tur1"); //envia mensaje
 				i++;
 			}
 			else if (i==2){
-				envio(canalTurno2, "Le toca a 2"); //envia mensaje
+				//printf("Soy: %d y aviso que es turno de:\n",getppid());
+				envio(canalTurno2, "tur2"); //envia mensaje
 				i++;
 			}
 			else if (i==3){
-				envio(canalTurno3, "Le toca a 3"); //envia mensaje
+				//printf("Soy: %d y aviso que es turno de:\n");
+				envio(canalTurno3, "tur3"); //envia mensaje
 				i++;
 			}
 			else{
