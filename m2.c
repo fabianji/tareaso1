@@ -427,6 +427,8 @@ void repartir7cartas()
 }
 
 
+
+
 /*
 Descripcion: Muestra un menu, que permite ver las funciones y como funcionan
 
@@ -551,6 +553,180 @@ void menu_funciones()
 }
 
 
+//El 4 se debe cambiar para el largo del mensaje
+void lectura(int canal[2]){
+	char buf[11];				
+	close(canal[1]);
+	read(canal[0], buf, sizeof(canal[0]));
+	printf("%s\n",buf );
+}
+
+void envio(int canal[2], char Msj[11])
+{
+	close(canal[0]);//Cierro Lectura
+	//open(canal[0]);//Abro escritura
+	write(canal[1], Msj, 11); //4) ESTA FUNCION ESPERA SI O SI AL HIJO
+	close(canal[1]); //Cierro Escritura
+}
+
+void simular_turnos()
+{
+	int canalTurno1[2], canalTurno2[2], canalTurno3[2];
+	//int canalTermino1[2], canalTermino2[2], canalTermino3[2];
+	pid_t pid;
+	pipe(canalTurno1);
+	pipe(canalTurno2);
+	pipe(canalTurno3);
+	for(int i=0; i < 3;i++)
+	{
+		pid = fork();
+		if(pid==0)
+		{
+			//Como no qro hijos de hijos
+			//hijo ejecuta y termina
+			break;
+		}
+	}
+	int i=1;
+	if (getppid()+1==getpid())
+	{
+		printf("Soy: %d y espero mensaje padre\n",getpid());
+
+		lectura(canalTurno1); //espera mensaje del padre
+		return;
+	}
+	else if (getppid()+2==getpid()){
+		printf("Soy: %d y espero mensaje padre \n",getpid() ); 
+		lectura(canalTurno2); //espera mensaje del padre
+		return;
+	}
+	else if (getppid()+3==getpid()){
+	
+		printf("Soy: %d y espero mensaje padre \n",getpid() );
+		lectura(canalTurno3); //espera mensaje del padre
+		return;
+	}
+	while(i<5){
+		if (i==1){
+			printf("El padre avisa:\n");
+			envio(canalTurno1, "turn1"); //envia mensaje
+			i++;
+		}
+		else if (i==2){
+			printf("El padre avisa:\n");
+			envio(canalTurno2, "turn2"); //envia mensaje
+			i++;
+		}
+		else if (i==3){
+			printf("El padre avisa:\n");
+			envio(canalTurno3, "turn3"); //envia mensaje
+			i++;
+		}
+		else{
+			i=1;
+		}
+	}
+}
+
+int main(int argc, char **argv)
+{
+
+
+
+	int elecc=-1;
+	
+	//while(elecc != 0)
+	//{
+	printf("Ingrese lo que desea hacer:\n");
+	printf("OJO: MENU NO ITERATIVO ( por problema con procesos)");
+	printf("0.Salir.\n");
+	printf("1.Ver menu funciones (entrega1).\n");
+	printf("2. ver funciones de fork y pipes...Ctrl+Z para salir si apreto 2\n");
+	//En este caso no hay menu iterativo!!
+	scanf("%d",&elecc);
+	if(elecc == 1)
+	{
+		menu_funciones();
+
+	}
+	else if(elecc == 2)
+	{
+
+		//simular_turnos();
+		int canalTurno1[2], canalTurno2[2], canalTurno3[2];
+		//int canalTermino1[2], canalTermino2[2], canalTermino3[2];
+		pid_t pid;
+		pipe(canalTurno1);
+		pipe(canalTurno2);
+		pipe(canalTurno3);
+		for(int i=0; i < 3;i++)
+		{
+			pid = fork();
+			if(pid==0)
+			{
+				//Como no qro hijos de hijos
+				//hijo ejecuta y termina
+				break;
+			}
+		}
+		int i=1;
+		if (getppid()+1==getpid())
+		{
+			printf("Soy: %d y espero mensaje padre\n",getpid());
+
+			lectura(canalTurno1); //espera mensaje del padre
+			return 0;
+		}
+		else if (getppid()+2==getpid()){
+			printf("Soy: %d y espero mensaje padre \n",getpid() ); 
+			lectura(canalTurno2); //espera mensaje del padre
+			return 0;
+		}
+		else if (getppid()+3==getpid()){
+		
+			printf("Soy: %d y espero mensaje padre \n",getpid() );
+			lectura(canalTurno3); //espera mensaje del padre
+			return 0;
+		}
+		while(i<5){
+			if (i==1){
+				envio(canalTurno1, "Le toca a 1"); //envia mensaje
+				i++;
+			}
+			else if (i==2){
+				envio(canalTurno2, "Le toca a 2"); //envia mensaje
+				i++;
+			}
+			else if (i==3){
+				envio(canalTurno3, "Le toca a 3"); //envia mensaje
+				i++;
+			}
+			else{
+				i=1;
+			}
+		}
+
+	}
+	else if(elecc ==0)
+	{
+		printf("Adios\n");
+	}
+	else
+	{
+		printf("Valor invalido, ejecute programa nuevamente\n");
+	}
+	
+
+	return 0;
+
+}
+
+
+
+
+/*
+
+
 
 int hazalgo()
 {
@@ -563,12 +739,11 @@ int hazalgo()
 }
 
 
-/*
-Descripcion: Con esto el padre es el ultimo en ejecutarse.
-Falta: Faltaria hacer que se cumpla el orden: padre, hijo1, hijo2, hijo3
-Y agregar pipes
+//Descripcion: Con esto el padre es el ultimo en ejecutarse.
+//Falta: Faltaria hacer que se cumpla el orden: padre, hijo1, hijo2, hijo3
+//Y agregar pipes
 
-*/
+
 void simular_turnos()
 {
 	pid_t pid;
@@ -600,11 +775,7 @@ void simular_turnos()
 	}
 
 
-/*
-	while(1){
-		sleep(10);
-	}
-*/
+
 
 }
 
@@ -638,33 +809,4 @@ void compartir1pipe()
 
 }
 
-
-
-int main(int argc, char **argv)
-{
-
-
-
-	menu_funciones(); //apretar 0 para ver lo de pipes...
-	
-
-	printf("Simulando turnos:\n");
-	simular_turnos();
-
-	printf("Compartiendo 1 pipe:\n");
-	compartir1pipe();
-
-
-
-
-	
-
-
-
-
-
- 
-	return 0;
-
-}
-
+*/
