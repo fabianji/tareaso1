@@ -1,15 +1,25 @@
 # tareaso1
 
-Esta es la rama master que contiene el main del programa en m2.c . 
+main.c:  Es nuestro programa y usado por makefile.
+m2.c : contiene entregas y funcionalidades pasadas. se dejo aqui por si se quiere
+revisar nuevamente. 
 
 Integrantes:
 Fabián Jiménez  201673503-8	fabian.jimenez@sansano.usm.cl
 Bernabe García	201773621-6	bernabe.garcia@sansano.usm.cl
 
-Se espera hacer la unión de todo para la entrega final!
-
 
 Instrucciones de uso:
+El programa principal es el main.c
+
+
+
+
+
+.......................................................................
+Si se quiere revisar entrega pasa m2.c habra que ejecutarlo sin makefile.
+Consideraciones entrega pasada:
+
 Para ver la entrega 2, presionar 2. Para salir del proceso , apretar control+z.
 
 Para ver entrega anterior, presionar 1 para ver menu funciones. (instrucciones anteriores)
