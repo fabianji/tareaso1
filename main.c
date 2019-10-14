@@ -26,11 +26,11 @@ void creacion_carpetas_vacias()
 void creacion_cartas()
 {
 	int i,j;
-	char colores[4][50]={"azul.txt","rojo.txt","verde.txt","amarillo.txt"};
-	char colores2[4][50]={"azul(2).txt","rojo(2).txt","verde(2).txt","amarillo(2).txt"};
+	char colores[4][100]={"azul.txt","rojo.txt","verde.txt","amarillo.txt"};
+	char colores2[4][100]={"azul(ii).txt","rojo(ii).txt","verde(ii).txt","amarillo(ii).txt"};
 	//*****Pueden haber archivos con igual nombre?
-	char color[4][50]={"mazo/color(1).txt","mazo/color(2).txt","mazo/color(3).txt","mazo/color(4).txt"};
-	char mas_4[4][50]={"mazo/+4(1).txt","mazo/+4(2).txt","mazo/+4(3).txt","mazo/+4(4).txt"};
+	char color[4][100]={"mazo/color(i).txt","mazo/color(ii).txt","mazo/color(iii).txt","mazo/color(iv).txt"};
+	char mas_4[4][100]={"mazo/+4(i).txt","mazo/+4(ii).txt","mazo/+4(iii).txt","mazo/+4(iv).txt"};
 	char numeros[12][10]={"1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","+2 ","reversa ","salto "}; //Ya tienen el espacio del append
     
     for(j=0;j<4;j++)
@@ -39,14 +39,14 @@ void creacion_cartas()
    		{
    			
    			FILE *fp;
-   			char direccion_cartas[50]="mazo/";
+   			char direccion_cartas[100]="mazo/";
    			strcat(direccion_cartas,numeros[i]);
    			strcat(direccion_cartas,colores[j]);
 			fp=fopen(direccion_cartas,"w");
 			fclose(fp);
 
 			
-   			char direccion_cartas2[50]="mazo/";
+   			char direccion_cartas2[100]="mazo/";
    			strcat(direccion_cartas2,numeros[i]);
    			strcat(direccion_cartas2,colores2[j]);
 			fp=fopen(direccion_cartas2,"w");
@@ -55,7 +55,7 @@ void creacion_cartas()
    			
    		}
    		FILE *fp;
-   		char direccion_cartas[30]="mazo/";
+   		char direccion_cartas[100]="mazo/";
    		strcat(direccion_cartas,"0 ");
    		strcat(direccion_cartas,colores[j]);
    		fp=fopen(direccion_cartas,"w");
@@ -323,13 +323,13 @@ void vaciar_revelada()
 
 		
 	strcpy(directorio_elegido,nombre_carpetas); 
-	char directorio_actual[50] = "./";
+	char directorio_actual[100] = "./";
 	strcat(directorio_actual,directorio_elegido);
 	DIR *d = opendir(directorio_actual);
 	struct dirent *dir;	
-	char direccion_carta_eliminada1[50];
+	char direccion_carta_eliminada1[100];
 	strcpy(direccion_carta_eliminada1,directorio_actual);
-	char direccion_carta_eliminada2[50];
+	char direccion_carta_eliminada2[100];
 	strcpy(direccion_carta_eliminada2,direccion_carta_eliminada1);
 	int j = 0; 
 	while((dir = readdir(d)) != NULL)
@@ -426,7 +426,7 @@ void cartas_carpeta2(char dir_carpeta[100], char cartas[200][100], char dir_cart
 }
 
 void agregar(char *nombreCarta, char *carpetaDestino, char *carpetaOrigen){
-	char comando[40]="mv '";
+	char comando[100]="mv '";
 	strcat(comando, carpetaOrigen);
 	strcat(comando, "/");
 	strcat(comando, nombreCarta);
@@ -552,7 +552,7 @@ int cumple_restr(char carta1[100], char carta2[100],char color_elegido[100])
 			{
 				return 1;
 			}
-			if(strstr(carta1,numeros[i])!=NULL && strstr(carta2,numeros[i])!=NULL)
+			if(strstr(carta1,numeros[i])!=NULL && strstr(carta2,numeros[i])!=NULL && carta2[0]!='+' && carta1[0]!='+')
 			{
 				return 1;
 			}
@@ -617,7 +617,7 @@ int main(int argc, char **argv)
 	creacion_cartas();
 	printf("Reparten 7 cartas iniciales:\n");
 	repartir7cartas();
-	printf("*******************************************\n");
+	printf("*******************************************\n\n");
 
 	int i=0;
 	int terminar=0;
@@ -651,11 +651,16 @@ int main(int argc, char **argv)
 	int salto=0;
 	int ya_se_salto=0;
 
+	int direccion=0; //0 derecha 1 izquierda
+
+	//LO IDEAL QUE EL PAPA ENVIE POR PIPE SI PUEDE  O NO JUGAR
+
+
 
 	//primer turno:
 	printf("*****************Primer Turno*****************\n");
 	printf("Juega jugador %d:\n\n",i);
-	printf("Tengo mano en carpeta %s:\n\n", carpetas[i]);
+	//printf("Tengo mano en carpeta %s:\n\n", carpetas[i]);
 	printf("Tengo %d cartas las cuales son:\n",cartas_tot[i]);
 	cartas_carpeta(carpetas[i],cartas,dir_cartas);
 	while(conteo_cartas<cartas_tot[i])
@@ -685,7 +690,7 @@ int main(int argc, char **argv)
 	cartas_carpeta("./mazo",cartas_mazo,dir_cartas_mazo);
 	i=1;
 
-	printf("*********************************************\n");
+	printf("*********************************************\n\n");
 	while(terminar!=1)
 	{
 		cartas_carpeta("./mazo",cartas_mazo,dir_cartas_mazo);
@@ -694,9 +699,12 @@ int main(int argc, char **argv)
 
 		printf("--------------------------Juega jugador %d (parte de 0):-----------------------\n",i);
 		cartas_carpeta("./revelada",cartas_rev,dir_cartas_rev);
-		printf("Se esta revelando la carta:%s\n\n",cartas_rev[0]);
-
-	
+		printf("Se esta revelando la carta:%s\n",cartas_rev[0]);
+		if(strcmp(color_elegido,"ninguno")!=0)
+		{
+			printf("Con color: %s\n", color_elegido);
+		}
+		printf("\n");
 		
 		if(strstr(cartas_rev[0],"+2")!=NULL && ya_se_robo==0)
 		{
@@ -723,10 +731,13 @@ int main(int argc, char **argv)
 			ya_se_robo=1;
 			robo_4=1;
 		}
+		/*
 		else if(strstr(cartas_rev[0],"reversa")!=NULL){
 			printf("se cambia direccion juego\n");
+			ya_se_reverso=1;
 			
 		}
+		*/
 		else if(strstr(cartas_rev[0],"salto")!=NULL && ya_se_salto==0){
 			salto=1;
 			printf("se salta al jugador %d \n",i);
@@ -734,7 +745,7 @@ int main(int argc, char **argv)
 
 		}
 
-		printf("Tengo mano en carpeta %s:\n", carpetas[i]);
+		//printf("Tengo mano en carpeta %s:\n", carpetas[i]);
 		printf("Tengo %d cartas las cuales son:\n",cartas_tot[i]);
 		cartas_carpeta(carpetas[i],cartas,dir_cartas);
 
@@ -771,8 +782,10 @@ int main(int argc, char **argv)
 				
 				conteo_cartas++;
 			}
+			printf("\n");
 			if(cumplen==0)
 			{
+
 				printf("EL jugador %d no puede colocar cartas, por lo que tiene que robar del mazo: \n",i);
 				
 
@@ -790,12 +803,13 @@ int main(int argc, char **argv)
 			{
 				//juega la ultima carta . ojo cumplen da 1, => 1 carta=> ultima carta es 0
 				//primero eliminar de revelada
+				
 				printf("El jugador %d jugara la carta %s\n",i,cartas[num_carta_final]);
 				
 
-				printf("se agrega %s a basurero .\n",cartas_rev[0]);
+				//printf("se agrega %s a basurero .\n",cartas_rev[0]);
 				vaciar_revelada();
-				printf("se agrego a basurero\n");
+				//printf("se agrego a basurero\n");
 
 				if(cartas[num_carta_final][0]=='+')
 				{
@@ -805,6 +819,11 @@ int main(int argc, char **argv)
 				{
 					ya_se_salto=0;
 				}
+				if(cartas[num_carta_final][0]=='r')
+				{
+					
+					direccion=(direccion+1)%2;
+				}
 				
 				//color_elegido volvera a "ninguno" si no debe elegir color
 				if(debe_elegir_color(cartas[num_carta_final],color_elegido))
@@ -813,15 +832,15 @@ int main(int argc, char **argv)
 					elegir_color(color_elegido);
 					printf("Jugador %d eligio color %s",i,color_elegido);
 
-					printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
+					//printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
 					agregar(cartas[num_carta_final],"revelada",carpetas2[i]);
-					printf("se agrego a revelada\n");
+					//printf("se agrego a revelada\n");
 					cartas_tot[i]--;
 				}
 				else{
-					printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
+					//printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
 					agregar(cartas[num_carta_final],"revelada",carpetas2[i]);
-					printf("se agrego a revelada\n");
+					//printf("se agrego a revelada\n");
 					cartas_tot[i]--;
 					strcpy(color_elegido,"ninguno");
 				}
@@ -842,18 +861,24 @@ int main(int argc, char **argv)
 	
 
 		}
-		printf("----------------------------------------------------------------\n");
+		printf("----------------------------------------------------------------\n\n");
 			
 		printf("Presione 1 para salir, otro numero para continuar turno:\n");
 		scanf("%d",&terminar);
 		cumplen=0;
 		conteo_cartas=0;
-		i++;
-
-		if (i==4)
-		{
-			i=0;
+		if(direccion==0){
+			i=(i+1)%4;
 		}
+		else{
+			i--;
+			if(i==-1){
+				i=3;
+			}
+		}
+		
+
+		
 		
 	}
 
