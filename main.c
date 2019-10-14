@@ -495,15 +495,7 @@ void repartir7cartas()
 int cumple_restr(char carta1[100], char carta2[100],char color_elegido[100])
 {
 	
-
-	
-	char colores[4][100]={"verde","rojo","amarillo","azul"};
-	
-
-	//AGREGAR IF COLOR ELEGIDO
-	char numeros[10][100]={"0 ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
-	int i;
-
+	//se pueden jugar siempre +4 y color
 	if(strstr(carta1,"color")!=NULL)
 	{
 		return 1;
@@ -513,57 +505,84 @@ int cumple_restr(char carta1[100], char carta2[100],char color_elegido[100])
 		return 1;
 	}
 
-
-	//puede tirar si son mismo numero
-	if(carta2[0]== carta1[1])
-	{
-		return 1;
-	}
-
-	//puede tirar +2 sobre +2
-	if(carta2[1]=='2' && carta1[1]=='2')
-	{
-		return 1;
-	}
-	//puede tirar +4 sobre +4
-	if(carta2[1]=='4' && carta1[1]=='4')
-	{
-		return 1;
-	}
+	char colores[4][100]={"verde","rojo","amarillo","azul"};
 	
-	if(strstr(carta1,"salto")!=NULL && strstr(carta2,"salto")!=NULL){
-		return 1;
-	}
-	if(strstr(carta1,"reversa")!=NULL && strstr(carta2,"reversa")!=NULL){
-		return 1;
-	}
-	if(strstr(carta1,"color")!=NULL && strstr(carta2,"color")!=NULL){
-		return 1;
-	}
 
-	
-	for(i=0;i<4;i++)
+	//si en revelada hay cualquier cosa que no sea color ni +4
+	if (strcmp(color_elegido,"ninguno")==0)
 	{
-		if(strstr(carta1,colores[i])!=NULL && strstr(carta2,colores[i])!=NULL)
+		
+
+		//AGREGAR IF COLOR ELEGIDO
+		char numeros[10][100]={"0 ","1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 "};
+		int i;
+
+
+		//puede tirar si son mismo numero
+		if(carta2[0]== carta1[1])
 		{
 			return 1;
 		}
-		if(strstr(carta1,numeros[i])!=NULL && strstr(carta2,numeros[i])!=NULL)
+
+		//puede tirar +2 sobre +2
+		if(carta2[1]=='2' && carta1[1]=='2')
 		{
 			return 1;
 		}
-	
+		//puede tirar +4 sobre +4
+		if(carta2[1]=='4' && carta1[1]=='4')
+		{
+			return 1;
+		}
+		
+		if(strstr(carta1,"salto")!=NULL && strstr(carta2,"salto")!=NULL){
+			return 1;
+		}
+		if(strstr(carta1,"reversa")!=NULL && strstr(carta2,"reversa")!=NULL){
+			return 1;
+		}
+		if(strstr(carta1,"color")!=NULL && strstr(carta2,"color")!=NULL){
+			return 1;
+		}
+
+		
+		for(i=0;i<4;i++)
+		{
+			if(strstr(carta1,colores[i])!=NULL && strstr(carta2,colores[i])!=NULL)
+			{
+				return 1;
+			}
+			if(strstr(carta1,numeros[i])!=NULL && strstr(carta2,numeros[i])!=NULL)
+			{
+				return 1;
+			}
+		
+		}
+		for(i=4;i<10;i++)
+		{
+			if(strstr(carta1,numeros[i])!=NULL && strstr(carta2,numeros[i])!=NULL)
+			{
+				return 1;
+			}
+		}
+
 	}
-	for(i=4;i<10;i++)
+
+	//si hay +4 o color en revelada
+	else
 	{
-		if(strstr(carta1,numeros[i])!=NULL && strstr(carta2,numeros[i])!=NULL)
+		//solo podra poner de igual color
+		if(strstr(carta1,color_elegido)!=NULL)
 		{
 			return 1;
 		}
+		
 	}
+	
+	
 	return 0;
 }
-int debe_elegir_color(char carta1[100]){
+int debe_elegir_color(char carta1[100], char color_elegido[100]){
 	//es color
 	if(strstr(carta1,"color")!=NULL){
 		return 1;
@@ -573,6 +592,9 @@ int debe_elegir_color(char carta1[100]){
 	{
 		return 1;
 	}
+
+
+	strcpy(color_elegido,"ninguno");
 	return 0;
 
 }
@@ -643,7 +665,7 @@ int main(int argc, char **argv)
 	
 	cartas_tot[0]--;
 	//AGREGAR A LOS DEMAS TURNOS. PERO PRIMERO DEBEN JUGAR
-	if(debe_elegir_color(cartas_rev[0]))
+	if(debe_elegir_color(cartas_rev[0], color_elegido))
 	{
 		printf("El jugador 0 debe elegir color:\n");
 		elegir_color(color_elegido);
@@ -671,7 +693,7 @@ int main(int argc, char **argv)
 			printf("jugador %d roba 2 cartas.\n",i);
 			agregar(cartas_mazo[0],carpetas2[i],"mazo");
 			cartas_tot[i]++;
-			agregar(cartas_mazo[0],carpetas2[i],"mazo");
+			agregar(cartas_mazo[1],carpetas2[i],"mazo");
 			cartas_tot[i]++;
 			
 		}
@@ -680,11 +702,11 @@ int main(int argc, char **argv)
 			printf("jugador %d roba 4 cartas.\n",i);
 			agregar(cartas_mazo[0],carpetas2[i],"mazo");
 			cartas_tot[i]++;
-			agregar(cartas_mazo[0],carpetas2[i],"mazo");
+			agregar(cartas_mazo[1],carpetas2[i],"mazo");
 			cartas_tot[i]++;
-			agregar(cartas_mazo[0],carpetas2[i],"mazo");
+			agregar(cartas_mazo[2],carpetas2[i],"mazo");
 			cartas_tot[i]++;
-			agregar(cartas_mazo[0],carpetas2[i],"mazo");
+			agregar(cartas_mazo[3],carpetas2[i],"mazo");
 			cartas_tot[i]++;
 			
 		}
@@ -713,6 +735,7 @@ int main(int argc, char **argv)
 		{
 			printf("El jugador %d grita UNO!\n",i);
 		}
+
 		if(conteo_cartas==0)
 		{
 			printf("El jugador %d grita GANE!\n",i);
@@ -757,7 +780,8 @@ int main(int argc, char **argv)
 			printf("se agrego a basurero\n");
 
 			
-			if(debe_elegir_color(cartas[num_carta_final]))
+			//color_elegido volvera a "ninguno" si no debe elegir color
+			if(debe_elegir_color(cartas[num_carta_final],color_elegido))
 			{
 				printf("El jugador %d debe elegir color:\n", i);
 				elegir_color(color_elegido);
@@ -766,8 +790,17 @@ int main(int argc, char **argv)
 			printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
 			
 			agregar(cartas[num_carta_final],"revelada",carpetas2[i]);
+			//tenia salto amarillo.txt en rev, se elimino bn,
+			//pero no me dejo pponer salto amarillo(2).txt tira errr
+
 			printf("se agrego a revelada\n");
 			cartas_tot[i]--;
+
+			if(cartas_tot[i]==0)
+			{
+				printf("El jugador %d grita GANE!\n",i);
+				break;
+			}
 	
 		}
 
