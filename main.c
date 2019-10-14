@@ -643,6 +643,14 @@ int main(int argc, char **argv)
 	int cumplen=0;
 	int num_carta_final=-1;
 
+	int ya_se_robo=0;
+	//int ya_cambio_color=0;
+
+	int robo_2=0;
+	int robo_4=0;
+	int salto=0;
+	int ya_se_salto=0;
+
 
 	//primer turno:
 	printf("*****************Primer Turno*****************\n");
@@ -670,11 +678,13 @@ int main(int argc, char **argv)
 		printf("El jugador 0 debe elegir color:\n");
 		elegir_color(color_elegido);
 		printf("Jugador %d eligio color %s",i,color_elegido);
+		//ya_cambio_color=1;
 	}
 	
 
 	cartas_carpeta("./mazo",cartas_mazo,dir_cartas_mazo);
 	i=1;
+
 	printf("*********************************************\n");
 	while(terminar!=1)
 	{
@@ -688,16 +698,18 @@ int main(int argc, char **argv)
 
 	
 		
-		if(strstr(cartas_rev[0],"+2")!=NULL)
+		if(strstr(cartas_rev[0],"+2")!=NULL && ya_se_robo==0)
 		{
 			printf("jugador %d roba 2 cartas.\n",i);
 			agregar(cartas_mazo[0],carpetas2[i],"mazo");
 			cartas_tot[i]++;
 			agregar(cartas_mazo[1],carpetas2[i],"mazo");
 			cartas_tot[i]++;
+			ya_se_robo=1;
+			robo_2=1;
 			
 		}
-		else if(strstr(cartas_rev[0],"+4")!=NULL)
+		else if(strstr(cartas_rev[0],"+4")!=NULL && ya_se_robo==0)
 		{
 			printf("jugador %d roba 4 cartas.\n",i);
 			agregar(cartas_mazo[0],carpetas2[i],"mazo");
@@ -708,14 +720,17 @@ int main(int argc, char **argv)
 			cartas_tot[i]++;
 			agregar(cartas_mazo[3],carpetas2[i],"mazo");
 			cartas_tot[i]++;
-			
+			ya_se_robo=1;
+			robo_4=1;
 		}
 		else if(strstr(cartas_rev[0],"reversa")!=NULL){
 			printf("se cambia direccion juego\n");
 			
 		}
-		else if(strstr(cartas_rev[0],"salto")!=NULL){
+		else if(strstr(cartas_rev[0],"salto")!=NULL && ya_se_salto==0){
+			salto=1;
 			printf("se salta al jugador %d \n",i);
+			ya_se_salto=1;
 
 		}
 
@@ -731,96 +746,115 @@ int main(int argc, char **argv)
 			
 		
 		}
-		if(conteo_cartas==1)
-		{
-			printf("El jugador %d grita UNO!\n",i);
-		}
-
-		if(conteo_cartas==0)
-		{
-			printf("El jugador %d grita GANE!\n",i);
-		}
+		
+		
 		conteo_cartas=0;
 
+		//esto habria que cambiarlo con el mensaje del padre????por pipe...
+		//if es mi turno, jugar...
+		if(salto==1 || robo_2==1 || robo_4==1){
+			printf("Jugador  %d pierde su turno.\n",i);
+			salto=0;
+			robo_2=0;
+			robo_4=0;
+		}
+		else{
+			printf("Solo se pueden jugar las siguientes cartas:\n");
+			while(conteo_cartas<cartas_tot[i])
+			{
+				if(cumple_restr(cartas[conteo_cartas],cartas_rev[0],color_elegido)==1)
+				{
+					printf("       %d. carta: %s\n",conteo_cartas,cartas[conteo_cartas]);
+					cumplen++;
+					num_carta_final=conteo_cartas;
+				}
+				
+				conteo_cartas++;
+			}
+			if(cumplen==0)
+			{
+				printf("EL jugador %d no puede colocar cartas, por lo que tiene que robar del mazo: \n",i);
+				
+
+
+
+				//********ACA DEBERIA IR LA FUNCION ROBAR CORRECTA AHORA HAGO QUE ROBE PRIMERA
+				//QUE SEA ALEATORIO....
+
+				//ya la robo..
+				agregar(cartas_mazo[0],carpetas2[i],"mazo");
+				cartas_tot[i]++;
+				//------------
+			}
+			else
+			{
+				//juega la ultima carta . ojo cumplen da 1, => 1 carta=> ultima carta es 0
+				//primero eliminar de revelada
+				printf("El jugador %d jugara la carta %s\n",i,cartas[num_carta_final]);
+				
+
+				printf("se agrega %s a basurero .\n",cartas_rev[0]);
+				vaciar_revelada();
+				printf("se agrego a basurero\n");
+
+				if(cartas[num_carta_final][0]=='+')
+				{
+					ya_se_robo=0;
+				}
+				if(cartas[num_carta_final][0]=='s')
+				{
+					ya_se_salto=0;
+				}
+				
+				//color_elegido volvera a "ninguno" si no debe elegir color
+				if(debe_elegir_color(cartas[num_carta_final],color_elegido))
+				{
+					printf("El jugador %d debe elegir color:\n", i);
+					elegir_color(color_elegido);
+					printf("Jugador %d eligio color %s",i,color_elegido);
+
+					printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
+					agregar(cartas[num_carta_final],"revelada",carpetas2[i]);
+					printf("se agrego a revelada\n");
+					cartas_tot[i]--;
+				}
+				else{
+					printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
+					agregar(cartas[num_carta_final],"revelada",carpetas2[i]);
+					printf("se agrego a revelada\n");
+					cartas_tot[i]--;
+					strcpy(color_elegido,"ninguno");
+				}
+				
+				if(cartas_tot[i]==1)
+				{
+					printf("El jugador %d grita UNO!\n",i);
+				}
+
+
+				if(cartas_tot[i]==0)
+				{
+					printf("El jugador %d grita GANE!\n",i);
+					break;
+				}
 		
-		printf("Solo se pueden jugar las siguientes cartas:\n");
-		while(conteo_cartas<cartas_tot[i])
-		{
-			if(cumple_restr(cartas[conteo_cartas],cartas_rev[0],color_elegido)==1)
-			{
-				printf("       %d. carta: %s\n",conteo_cartas,cartas[conteo_cartas]);
-				cumplen++;
-				num_carta_final=conteo_cartas;
-			}
-			
-			conteo_cartas++;
-		}
-		if(cumplen==0)
-		{
-			printf("EL jugador %d no puede colocar cartas, por lo que tiene que robar del mazo: \n",i);
-			
-
-
-
-			//********ACA DEBERIA IR LA FUNCION ROBAR CORRECTA AHORA HAGO QUE ROBE PRIMERA
-			//QUE SEA ALEATORIO....
-			agregar(cartas_mazo[0],carpetas2[i],"mazo");
-			cartas_tot[i]++;
-			//------------
-		}
-		else
-		{
-			//juega la ultima carta . ojo cumplen da 1, => 1 carta=> ultima carta es 0
-			//primero eliminar de revelada
-			printf("El jugador %d jugara la carta %s\n",i,cartas[num_carta_final]);
-			
-
-			printf("se agrega %s a basurero .\n",cartas_rev[0]);
-			vaciar_revelada();
-			printf("se agrego a basurero\n");
-
-			
-			//color_elegido volvera a "ninguno" si no debe elegir color
-			if(debe_elegir_color(cartas[num_carta_final],color_elegido))
-			{
-				printf("El jugador %d debe elegir color:\n", i);
-				elegir_color(color_elegido);
-				printf("Jugador %d eligio color %s",i,color_elegido);
-			}
-			printf("se agrega %s a revelada .\n",cartas[num_carta_final]);
-			
-			agregar(cartas[num_carta_final],"revelada",carpetas2[i]);
-			//tenia salto amarillo.txt en rev, se elimino bn,
-			//pero no me dejo pponer salto amarillo(2).txt tira errr
-
-			printf("se agrego a revelada\n");
-			cartas_tot[i]--;
-
-			if(cartas_tot[i]==0)
-			{
-				printf("El jugador %d grita GANE!\n",i);
-				break;
 			}
 	
+
 		}
-
-
-		conteo_cartas=0;
-		cumplen=0;
-			
-		
 		printf("----------------------------------------------------------------\n");
-		
-
-
+			
 		printf("Presione 1 para salir, otro numero para continuar turno:\n");
 		scanf("%d",&terminar);
+		cumplen=0;
 		conteo_cartas=0;
 		i++;
+
 		if (i==4)
 		{
 			i=0;
 		}
+		
 	}
 
 	
