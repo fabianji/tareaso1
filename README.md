@@ -9,8 +9,11 @@ Fabián Jiménez  201673503-8	fabian.jimenez@sansano.usm.cl
 Bernabe García	201773621-6	bernabe.garcia@sansano.usm.cl
 
 
-Instrucciones de uso:
-El programa principal es el main.c
+
+-El programa principal es el main.c
+Consideraciones:
+-Cuando se terminan las cartas del mazo saldrá un error y luego se terminará.(no se maneja).
+
 
 
 
